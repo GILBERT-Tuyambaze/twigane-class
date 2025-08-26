@@ -1,3 +1,4 @@
+import { createClient } from '@supabase/supabase-js'
 import React, { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,7 +19,7 @@ export default function Login() {
   if (user) {
     return <Navigate to="/dashboard" replace />;
   }
-console.log(supabaseUrl, supabaseAnonKey);
+console.log(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
