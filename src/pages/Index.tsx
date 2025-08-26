@@ -204,6 +204,7 @@ export default function WelcomePage() {
           </div>
           <p className="text-gray-600 dark:text-gray-400">
             Free coding education for everyone. Built with #love for the community.
+            for more info contact +250793438873/tuyambazegilbert <link href="https://gilbert-tuyambaze.vercel.app/">Powered by Gilbert Tuyambaze </link>
           </p>
         </div>
       </footer>
