@@ -1,0 +1,11 @@
+id,title,description,category,difficulty,duration,lessons,students,rating,is_published,thumbnail_url,instructor_id,topics
+1,"Web Basics: HTML & CSS","Master the fundamentals of web development with HTML and CSS","Web Development","Beginner","8 weeks",25,1234,4.8,true,"","","HTML5,CSS3,Responsive Design,Flexbox"
+2,"JavaScript Fundamentals","Learn the core concepts of JavaScript programming","Programming","Beginner","6 weeks",20,892,4.9,true,"","","Variables,Functions,DOM,Events"
+3,"React Development","Build modern web applications with React","Frontend","Intermediate","12 weeks",35,645,4.7,true,"","","Components,Hooks,Router,State Management"
+4,"Python Programming","Learn Python from basics to advanced concepts","Programming","Beginner","10 weeks",40,1567,4.6,true,"","","Syntax,OOP,Data Science,APIs"
+5,"Database Design with Supabase","Master database design and real-time applications","Backend","Intermediate","6 weeks",20,543,4.5,true,"","","SQL,Authentication,Real-time,Security"
+6,"Node.js Backend Development","Build scalable backend applications with Node.js","Backend","Intermediate","8 weeks",28,432,4.4,true,"","","Express,APIs,Authentication,Testing"
+7,"Vue.js Framework","Learn Vue.js for building user interfaces","Frontend","Intermediate","10 weeks",30,321,4.3,true,"","","Components,Vuex,Router,Composition API"
+8,"Mobile App with React Native","Create mobile applications using React Native","Mobile","Advanced","12 weeks",35,234,4.2,true,"","","Mobile UI,Navigation,Performance,Publishing"
+9,"DevOps Fundamentals","Learn deployment and infrastructure management","DevOps","Intermediate","8 weeks",25,543,4.6,true,"","","Docker,CI/CD,Cloud,Monitoring"
+10,"Data Structures & Algorithms","Master computer science fundamentals","Computer Science","Intermediate","14 weeks",50,876,4.8,true,"","","Arrays,Trees,Sorting,Complexity"
