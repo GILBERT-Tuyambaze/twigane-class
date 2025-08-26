@@ -18,7 +18,7 @@ export default function Login() {
   if (user) {
     return <Navigate to="/dashboard" replace />;
   }
-
+console.log(supabaseUrl, supabaseAnonKey);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
