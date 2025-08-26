@@ -18,8 +18,8 @@ import Community from './pages/Community';
 import AdminDashboard from './pages/AdminDashboard';
 import NotFound from './pages/NotFound';
 import Practice from './pages/Practice';
-import Achievements from './pages/Achievements';
-import Challenges from './pages/Challenges';
+import Achievements from './pages/achievements';
+import Challenges from './pages/challenges';
 
 const queryClient = new QueryClient();
 
