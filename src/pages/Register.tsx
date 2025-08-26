@@ -40,6 +40,9 @@ export default function Register() {
     if (!success) {
       setError('Registration failed. Please try again.');
     }
+    else{
+      setError('check your email to confim it')
+    }
     setLoading(false);
   };
 
