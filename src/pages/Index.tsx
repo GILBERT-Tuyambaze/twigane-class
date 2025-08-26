@@ -203,8 +203,8 @@ export default function WelcomePage() {
             </span>
           </div>
           <p className="text-gray-600 dark:text-gray-400">
-            Free coding education for everyone. Built with #love for the community.
-            for more info contact +250793438873/tuyambazegilbert <a href="https://gilbert-tuyambaze.vercel.app/" className="text-xl font-bold bg-gradient-to-r from-orange-600 to-blue-600 bg-clip-text text-transparent">Powered by Gilbert Tuyambaze </a>
+            Free coding education for everyone. Built with #love for the community.</br>
+            for more info contact +250793438873/tuyambazegilbert </br> <a href="https://gilbert-tuyambaze.vercel.app/" className="text-xl font-bold bg-gradient-to-r from-orange-600 to-blue-600 bg-clip-text text-transparent">Powered by Gilbert Tuyambaze </a>
           </p>
         </div>
       </footer>
