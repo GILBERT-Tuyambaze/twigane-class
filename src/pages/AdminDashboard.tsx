@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { FloatingAIAssistant } from '@/components/ai/AIChatBot';
 import { 
   Users, 
   BookOpen, 
@@ -239,6 +240,11 @@ export default function AdminDashboard() {
           </TabsContent>
         </Tabs>
       </div>
+      <FloatingAIAssistant 
+  context="Admin Dashboard Analytics and Management" 
+  lessonId="admin-dashboard" 
+/>
+
     </Layout>
   );
 }

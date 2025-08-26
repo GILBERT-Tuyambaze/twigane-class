@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { FloatingAIAssistant } from '@/components/ai/AIChatBot';
 import { 
   Code, 
   Trophy, 
@@ -202,10 +203,15 @@ export default function WelcomePage() {
             </span>
           </div>
           <p className="text-gray-600 dark:text-gray-400">
-            Free coding education for everyone. Built with ❤️ for the community.
+            Free coding education for everyone. Built with #love for the community.
           </p>
         </div>
       </footer>
+      {/* Floating AI Assistant */}
+<FloatingAIAssistant 
+  context={`Welcome page for new learners. Guide users about courses, tracks, features, and how to start their coding journey.`} 
+/>
+
     </div>
   );
 }

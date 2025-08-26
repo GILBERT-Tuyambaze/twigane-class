@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { useState, useEffect } from 'react'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'YOUR_SUPABASE_URL'
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY'
@@ -332,6 +333,138 @@ export interface Database {
       }
     }
   }
+}
+
+// Auth Types
+export interface User {
+  id: string
+  email?: string
+  user_metadata?: {
+    name?: string
+    [key: string]: any
+  }
+}
+
+export interface Session {
+  access_token: string
+  refresh_token: string
+  expires_at?: number
+  user: User
+}
+
+// useAuth Hook
+export const useAuth = () => {
+  const [user, setUser] = useState<User | null>(null)
+  const [session, setSession] = useState<Session | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    // Get initial session
+    const getInitialSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      setSession(session)
+      setUser(session?.user || null)
+      setLoading(false)
+    }
+
+    getInitialSession()
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setSession(session)
+        setUser(session?.user || null)
+        setLoading(false)
+      }
+    )
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  return {
+    user,
+    session,
+    loading,
+    signUp: authHelpers.signUp,
+    signIn: authHelpers.signIn,
+    signOut: authHelpers.signOut,
+  }
+}
+
+// useCourses Hook
+export const useCourses = () => {
+  const [courses, setCourses] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setLoading(true)
+        const { data, error } = await dbHelpers.getPublishedCourses()
+        
+        if (error) {
+          setError(error)
+          console.error('Error fetching courses:', error)
+        } else {
+          setCourses(data || [])
+        }
+      } catch (err) {
+        setError(err)
+        console.error('Error fetching courses:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchCourses()
+  }, [])
+
+  return { courses, loading, error }
+}
+
+// useUserProgress Hook
+export const useUserProgress = (userId?: string) => {
+  const [progress, setProgress] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    if (!userId) {
+      setLoading(false)
+      return
+    }
+
+    const fetchProgress = async () => {
+      try {
+        setLoading(true)
+        const { data, error } = await dbHelpers.getUserProgress(userId)
+        
+        if (error) {
+          setError(error)
+          console.error('Error fetching user progress:', error)
+        } else {
+          // Transform progress data to include course_id and calculated progress percentage
+          const progressData = data?.map(item => ({
+            ...item,
+            course_id: item.lessons?.course_id,
+            progress: item.completed_at ? 100 : 0 // Simple calculation, you may want to make this more sophisticated
+          })) || []
+          
+          setProgress(progressData)
+        }
+      } catch (err) {
+        setError(err)
+        console.error('Error fetching user progress:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProgress()
+  }, [userId])
+
+  return { progress, loading, error }
 }
 
 // Helper functions for common database operations

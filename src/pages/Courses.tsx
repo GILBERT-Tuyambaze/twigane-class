@@ -6,135 +6,68 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
-import { 
-  Search, 
-  Clock, 
-  Users, 
-  Star, 
-  PlayCircle,
-  BookOpen,
-  Code,
-  Database,
-  Smartphone,
-  Cpu
-} from 'lucide-react';
+import { FloatingAIAssistant } from '@/components/ai/AIChatBot';
+import { Clock, Users, Star, PlayCircle, BookOpen, Code, Database, Smartphone, Cpu, Search } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useCourses, useSupabaseAuth, useUserProgress } from '@/hooks/useSupabase';
 
-const courses = [
-  {
-    id: 1,
-    title: 'Web Basics: HTML, CSS & JavaScript',
-    description: 'Master the fundamentals of web development from scratch',
-    category: 'Web Development',
-    difficulty: 'Beginner',
-    duration: '8 weeks',
-    lessons: 25,
-    students: 1234,
-    rating: 4.8,
-    progress: 75,
-    color: 'from-orange-500 to-yellow-500',
-    icon: Code,
-    topics: ['HTML5', 'CSS3', 'JavaScript', 'Responsive Design']
-  },
-  {
-    id: 2,
-    title: 'React Mastery: Complete Frontend Course',
-    description: 'Build modern web applications with React and ecosystem',
-    category: 'Frontend',
-    difficulty: 'Intermediate',
-    duration: '12 weeks',
-    lessons: 35,
-    students: 892,
-    rating: 4.9,
-    progress: 45,
-    color: 'from-blue-500 to-indigo-500',
-    icon: Code,
-    topics: ['React', 'Hooks', 'Router', 'State Management']
-  },
-  {
-    id: 3,
-    title: 'Python Programming: From Zero to Hero',
-    description: 'Learn Python programming and dive into AI/ML basics',
-    category: 'Programming',
-    difficulty: 'Beginner',
-    duration: '10 weeks',
-    lessons: 40,
-    students: 1567,
-    rating: 4.7,
-    progress: 20,
-    color: 'from-green-500 to-emerald-500',
-    icon: Cpu,
-    topics: ['Python Basics', 'OOP', 'Data Science', 'Machine Learning']
-  },
-  {
-    id: 4,
-    title: 'Database Design with Supabase',
-    description: 'Master database design and real-time applications',
-    category: 'Backend',
-    difficulty: 'Intermediate',
-    duration: '6 weeks',
-    lessons: 20,
-    students: 543,
-    rating: 4.6,
-    progress: 0,
-    color: 'from-purple-500 to-pink-500',
-    icon: Database,
-    topics: ['SQL', 'Supabase', 'Real-time', 'Authentication']
-  },
-  {
-    id: 5,
-    title: 'Modern Tools & Deployment',
-    description: 'Learn essential developer tools and deployment strategies',
-    category: 'DevOps',
-    difficulty: 'Intermediate',
-    duration: '4 weeks',
-    lessons: 15,
-    students: 321,
-    rating: 4.5,
-    progress: 0,
-    color: 'from-gray-500 to-slate-600',
-    icon: BookOpen,
-    topics: ['Git', 'GitHub', 'Vite', 'Netlify', 'Vercel']
-  },
-  {
-    id: 6,
-    title: 'Mobile App Development Basics',
-    description: 'Introduction to mobile app development concepts',
-    category: 'Mobile',
-    difficulty: 'Advanced',
-    duration: '8 weeks',
-    lessons: 28,
-    students: 234,
-    rating: 4.4,
-    progress: 0,
-    color: 'from-teal-500 to-cyan-500',
-    icon: Smartphone,
-    topics: ['React Native', 'Mobile UI', 'App Store', 'Performance']
-  }
-];
 
 const categories = ['All', 'Web Development', 'Frontend', 'Backend', 'Programming', 'DevOps', 'Mobile'];
 
+// Helper function to get icon based on category
+const getCourseIcon = (category: string | null) => {
+  switch (category?.toLowerCase()) {
+    case 'web development': return Code;
+    case 'frontend': return Smartphone;
+    case 'backend': return Database;
+    case 'programming': return Code;
+    case 'devops': return Cpu;
+    case 'mobile': return Smartphone;
+    default: return BookOpen;
+  }
+};
+
+// Helper function to get color based on category
+const getCourseColor = (category: string | null) => {
+  switch (category?.toLowerCase()) {
+    case 'web development': return 'from-blue-500 to-purple-600';
+    case 'frontend': return 'from-pink-500 to-rose-500';
+    case 'backend': return 'from-green-500 to-teal-600';
+    case 'programming': return 'from-orange-500 to-red-500';
+    case 'devops': return 'from-gray-500 to-slate-600';
+    case 'mobile': return 'from-indigo-500 to-blue-600';
+    default: return 'from-gray-500 to-gray-600';
+  }
+};
+
 export default function Courses() {
+  const navigate = useNavigate();
+  const { user } = useSupabaseAuth();
+  const { courses, loading: coursesLoading } = useCourses();
+  const { progress } = useUserProgress(user?.id);
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [activeTab, setActiveTab] = useState('all');
 
+  if (coursesLoading) return <Layout><div className="p-6">Loading courses...</div></Layout>;
+
   const filteredCourses = courses.filter(course => {
     const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         course.description.toLowerCase().includes(searchTerm.toLowerCase());
+                         course.description?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'All' || course.category === selectedCategory;
+    const userProgress = progress.find(p => p.course_id === course.id)?.progress || 0;
     const matchesTab = activeTab === 'all' || 
-                      (activeTab === 'enrolled' && course.progress > 0) ||
-                      (activeTab === 'completed' && course.progress === 100);
-    
+                      (activeTab === 'enrolled' && userProgress > 0) ||
+                      (activeTab === 'completed' && userProgress === 100);
     return matchesSearch && matchesCategory && matchesTab;
   });
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'Beginner': return 'bg-green-500';
-      case 'Intermediate': return 'bg-yellow-500';
-      case 'Advanced': return 'bg-red-500';
+  const getDifficultyColor = (difficulty: string | null) => {
+    switch (difficulty?.toLowerCase()) {
+      case 'beginner': return 'bg-green-500';
+      case 'intermediate': return 'bg-yellow-500';
+      case 'advanced': return 'bg-red-500';
       default: return 'bg-gray-500';
     }
   };
@@ -143,36 +76,24 @@ export default function Courses() {
     <Layout>
       <div className="p-6 space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Explore Courses
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Master coding skills with our comprehensive curriculum
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Explore Courses</h1>
+          <p className="text-gray-600 dark:text-gray-400">Master coding skills with our comprehensive curriculum</p>
         </div>
 
         <div className="space-y-4">
           <div className="relative max-w-md">
             <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Search courses..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
+            <Input placeholder="Search courses..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10" />
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {categories.map((category) => (
+            {categories.map(category => (
               <Button
                 key={category}
                 variant={selectedCategory === category ? "default" : "outline"}
                 size="sm"
                 onClick={() => setSelectedCategory(category)}
-                className={selectedCategory === category ? 
-                  "bg-gradient-to-r from-orange-500 to-blue-500 text-white" : 
-                  ""
-                }
+                className={selectedCategory === category ? "bg-gradient-to-r from-orange-500 to-blue-500 text-white" : ""}
               >
                 {category}
               </Button>
@@ -189,81 +110,85 @@ export default function Courses() {
 
           <TabsContent value={activeTab} className="mt-6">
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredCourses.map((course) => {
-                const IconComponent = course.icon;
-                
+              {filteredCourses.map(course => {
+                const IconComponent = getCourseIcon(course.category);
+                const courseColor = getCourseColor(course.category);
+                const userProgress = progress.find(p => p.course_id === course.id)?.progress || 0;
+
                 return (
                   <Card key={course.id} className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-orange-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
                     <CardHeader className="pb-4">
-                      <div className={`w-full h-3 bg-gradient-to-r ${course.color} rounded-full mb-4`} />
+                      <div className={`w-full h-3 bg-gradient-to-r ${courseColor} rounded-full mb-4`} />
                       <div className="flex items-start justify-between">
                         <IconComponent className="h-8 w-8 text-gray-600 dark:text-gray-400" />
                         <Badge className={`${getDifficultyColor(course.difficulty)} text-white`}>
-                          {course.difficulty}
+                          {course.difficulty || 'Beginner'}
                         </Badge>
                       </div>
                       <CardTitle className="text-lg leading-tight">{course.title}</CardTitle>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{course.description}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {course.description || 'Learn essential programming concepts'}
+                      </p>
                     </CardHeader>
-                    
+
                     <CardContent className="space-y-4">
                       <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
                         <div className="flex items-center">
                           <Clock className="h-4 w-4 mr-1" />
-                          {course.duration}
+                          {course.duration || '4-6 weeks'}
                         </div>
                         <div className="flex items-center">
                           <BookOpen className="h-4 w-4 mr-1" />
-                          {course.lessons} lessons
+                          {course.lessons || '12'} lessons
                         </div>
                       </div>
-
                       <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
                         <div className="flex items-center">
                           <Users className="h-4 w-4 mr-1" />
-                          {course.students.toLocaleString()} students
+                          {course.students?.toLocaleString() || '1,234'} students
                         </div>
                         <div className="flex items-center">
                           <Star className="h-4 w-4 mr-1 fill-yellow-400 text-yellow-400" />
-                          {course.rating}
+                          {course.rating || '4.8'}
                         </div>
                       </div>
 
-                      {course.progress > 0 && (
+                      {userProgress > 0 && (
                         <div>
                           <div className="flex justify-between text-sm mb-1">
                             <span>Progress</span>
-                            <span>{course.progress}%</span>
+                            <span>{userProgress}%</span>
                           </div>
-                          <Progress value={course.progress} />
+                          <Progress value={userProgress} />
                         </div>
                       )}
 
-                      <div className="flex flex-wrap gap-1">
-                        {course.topics.slice(0, 3).map((topic, index) => (
-                          <Badge key={index} variant="secondary" className="text-xs">
-                            {topic}
-                          </Badge>
-                        ))}
-                        {course.topics.length > 3 && (
-                          <Badge variant="secondary" className="text-xs">
-                            +{course.topics.length - 3} more
-                          </Badge>
-                        )}
-                      </div>
-
-                      <Button className={`w-full bg-gradient-to-r ${course.color} text-white`}>
+                      <Button 
+                        className={`w-full bg-gradient-to-r ${courseColor} text-white hover:opacity-90 transition-opacity`}
+                        onClick={() => navigate(`/courses/${course.id}`)}
+                      >
                         <PlayCircle className="h-4 w-4 mr-2" />
-                        {course.progress > 0 ? 'Continue Learning' : 'Start Course'}
+                        {userProgress > 0 ? 'Continue Learning' : 'Start Course'}
                       </Button>
                     </CardContent>
                   </Card>
                 );
               })}
             </div>
+
+            {filteredCourses.length === 0 && (
+              <div className="text-center py-8">
+                <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No courses found</h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Try adjusting your search or filters to find more courses.
+                </p>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>
+      <FloatingAIAssistant context="Course catalog page" />
     </Layout>
   );
 }

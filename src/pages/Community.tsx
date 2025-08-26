@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { FloatingAIAssistant } from '@/components/ai/AIChatBot';
 import { 
   MessageCircle, 
   ThumbsUp, 
@@ -312,6 +313,11 @@ export default function Community() {
           </TabsContent>
         </Tabs>
       </div>
+      <FloatingAIAssistant 
+  context="Community discussions, showcase projects, and leaderboards" 
+  lessonId="community-page"
+/>
+
     </Layout>
   );
 }

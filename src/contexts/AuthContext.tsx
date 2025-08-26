@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useSupabaseAuth } from '@/hooks/useSupabase';
 
 interface User {
   id: string;
@@ -25,83 +26,52 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user: supabaseUser, session, loading, signUp, signIn, signOut } = useSupabaseAuth();
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
 
+  // Map Supabase user to app User type
   useEffect(() => {
-    // Check for existing user session
-    const storedUser = localStorage.getItem('twigane_user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    if (supabaseUser) {
+      setUser({
+        id: supabaseUser.id,
+        email: supabaseUser.email || '',
+        name: supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || '',
+        isAdmin: false, // fetch from user_profiles table if needed
+        xp: 0, // fetch from user_profiles
+        level: 'Seed', // fetch from user_profiles
+        badges: [], // fetch from achievements table
+        streak: 0, // fetch from user_profiles
+        completedLessons: [] // fetch from user_progress
+      });
+    } else {
+      setUser(null);
     }
-    setLoading(false);
-  }, []);
+  }, [supabaseUser]);
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    try {
-      // Mock login - in real app, this would call Supabase
-      const mockUser: User = {
-        id: '1',
-        email,
-        name: email.split('@')[0],
-        isAdmin: email === 'admin@twigane.com',
-        xp: 150,
-        level: 'Leaf',
-        badges: ['First Steps', 'HTML Master'],
-        streak: 5,
-        completedLessons: ['html-1', 'html-2', 'css-1']
-      };
-      
-      setUser(mockUser);
-      localStorage.setItem('twigane_user', JSON.stringify(mockUser));
-      return true;
-    } catch (error) {
-      console.error('Login error:', error);
-      return false;
-    }
+    const { error } = await signIn(email, password);
+    return !error;
   };
 
   const register = async (email: string, password: string, name: string): Promise<boolean> => {
-    try {
-      // Mock registration - in real app, this would call Supabase
-      const newUser: User = {
-        id: Date.now().toString(),
-        email,
-        name,
-        isAdmin: false,
-        xp: 0,
-        level: 'Seed',
-        badges: [],
-        streak: 0,
-        completedLessons: []
-      };
-      
-      setUser(newUser);
-      localStorage.setItem('twigane_user', JSON.stringify(newUser));
-      return true;
-    } catch (error) {
-      console.error('Registration error:', error);
-      return false;
-    }
+    const { error } = await signUp(email, password, name);
+    return !error;
   };
 
   const logout = () => {
-    setUser(null);
-    localStorage.removeItem('twigane_user');
+    signOut();
   };
 
   const updateUser = (updates: Partial<User>) => {
     if (user) {
-      const updatedUser = { ...user, ...updates };
-      setUser(updatedUser);
-      localStorage.setItem('twigane_user', JSON.stringify(updatedUser));
+      const updated = { ...user, ...updates };
+      setUser(updated);
+      // Optional: sync updates to Supabase user_profiles table
     }
   };
 
